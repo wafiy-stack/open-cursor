@@ -9,7 +9,7 @@
 
 set -eu
 
-REPO="noah-thing/open-cursor"
+REPO="wafiy-stack/open-cursor"
 
 say() { printf '%s\n' "$*"; }
 step() { printf '\033[1m%s\033[0m\n' "$*"; }

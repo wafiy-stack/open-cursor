@@ -14,7 +14,7 @@ try {
 		# Windows PowerShell 5.1 starts with TLS 1.0/1.1 only, which GitHub refuses
 		[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
 
-		$repo = 'noah-thing/open-cursor'
+		$repo = 'wafiy-stack/open-cursor'
 		$arch = if ($env:PROCESSOR_ARCHITECTURE -eq 'ARM64') { 'arm64' } else { 'x64' }
 		# the latest published release (never a prerelease or draft), unless a version is asked for
 		$api = if ($env:OPENCURSOR_VERSION) { "https://api.github.com/repos/$repo/releases/tags/v$($env:OPENCURSOR_VERSION.TrimStart('v'))" } else { "https://api.github.com/repos/$repo/releases/latest" }

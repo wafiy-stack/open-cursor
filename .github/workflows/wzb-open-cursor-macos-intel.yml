@@ -1,0 +1,88 @@
+name: OpenCursor / macOS Intel test DMG
+
+# Only manual dispatch. No automatic PR, push, schedule, tag or release trigger.
+on:
+  workflow_dispatch:
+    inputs:
+      approve_compute:
+        description: 'I checked Actions billing and explicitly approve hosted macOS Intel compute'
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: open-cursor-macos-intel-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  macos-intel:
+    if: ${{ inputs.approve_compute == true }}
+    runs-on: macos-15-intel
+    timeout-minutes: 120
+    env:
+      NODE_OPTIONS: --max-old-space-size=8192
+      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+      FOUNDRY_LOCAL_SKIP_INSTALL: '1'
+      ONNXRUNTIME_NODE_INSTALL: skip
+    steps:
+      - name: Checkout source with no persisted credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Set up project Node version
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Confirm source and test-only protections
+        shell: bash
+        run: sh stage2/doctor.sh
+      - name: Check build host
+        shell: bash
+        run: |
+          uname -a
+          node --version
+          npm --version
+          df -h .
+      - name: Install build dependencies
+        shell: bash
+        run: |
+          set -e
+          (cd build && npm ci)
+          node build/npm/preinstall.ts
+          npm ci
+      - name: Compile OpenCursor extension
+        shell: bash
+        run: |
+          set -e
+          cd extensions/open-cursor
+          npm ci
+          npm run build
+      - name: Build unsigned macOS Intel DMG
+        shell: bash
+        run: sh scripts/open-cursor/package-mac.sh x64
+      - name: Verify DMG and write checksums
+        shell: bash
+        run: |
+          set -e
+          DMG=$(find ../open-cursor-dist -maxdepth 1 -name 'OpenCursor-*-x64.dmg' -type f | head -1)
+          [ -n "$DMG" ]
+          sh stage2/verify-dmg.sh "$DMG"
+          mkdir -p dist-out
+          cp "$DMG" dist-out/
+          (cd dist-out && shasum -a 256 *.dmg > SHA256SUMS.txt)
+          ls -lh dist-out
+      - name: Upload unpublished evaluation artifact only
+        uses: actions/upload-artifact@v4
+        with:
+          name: opencursor-macos-intel-test-dmg
+          path: dist-out/
+          if-no-files-found: error
+          retention-days: 3

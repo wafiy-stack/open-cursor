@@ -17,7 +17,7 @@ import {
 	type InstallKind, type Release, type ReleaseAsset,
 } from './plan';
 
-const FEED = 'https://api.github.com/repos/noah-thing/open-cursor/releases/latest';
+const FEED = 'https://api.github.com/repos/wafiy-stack/open-cursor/releases/latest';
 const FIRST_CHECK_MS = 20_000;
 const EVERY_MS = 6 * 60 * 60 * 1000;
 const SNOOZE_MS = 24 * 60 * 60 * 1000;
@@ -25,7 +25,7 @@ const SNOOZE_KEY = 'openCursor.update.snoozed';
 const ENABLE_AUTO = 'Enable auto updates';
 const UPDATE_NOW = 'Update and restart';
 const DOWNLOAD = 'Download';
-const RELEASES = 'https://github.com/noah-thing/open-cursor/releases';
+const RELEASES = 'https://github.com/wafiy-stack/open-cursor/releases';
 const RETRY_BASE_MS = 6 * 60 * 60 * 1000;
 const RETRY_MAX_MS = 48 * 60 * 60 * 1000;
 
@@ -193,7 +193,7 @@ class Updater implements vscode.Disposable {
 		} else if (pick === UPDATE_NOW) {
 			await this.install(release, false, true);
 		} else if (pick === 'What\'s new') {
-			void vscode.env.openExternal(vscode.Uri.parse(release.pageUrl || 'https://github.com/noah-thing/open-cursor/releases'));
+			void vscode.env.openExternal(vscode.Uri.parse(release.pageUrl || 'https://github.com/wafiy-stack/open-cursor/releases'));
 		} else {
 			await this.ctx.globalState.update(SNOOZE_KEY, { version: release.version, until: Date.now() + SNOOZE_MS });
 		}
@@ -236,7 +236,7 @@ class Updater implements vscode.Disposable {
 			const go = await vscode.window.showInformationMessage(
 				'This copy of OpenCursor cannot update itself. Download the new version from the release page.',
 				'Open release page');
-			if (go) { void vscode.env.openExternal(vscode.Uri.parse(release.pageUrl || 'https://github.com/noah-thing/open-cursor/releases')); }
+			if (go) { void vscode.env.openExternal(vscode.Uri.parse(release.pageUrl || 'https://github.com/wafiy-stack/open-cursor/releases')); }
 			return;
 		}
 		const problem = assetProblem(asset);
@@ -244,7 +244,7 @@ class Updater implements vscode.Disposable {
 			// a background attempt stays quiet; the notice still offers the release page
 			if (quiet) { return; }
 			const go = await vscode.window.showErrorMessage(`OpenCursor will not install this update: ${problem}.`, 'Open release page');
-			if (go) { void vscode.env.openExternal(vscode.Uri.parse(release.pageUrl || 'https://github.com/noah-thing/open-cursor/releases')); }
+			if (go) { void vscode.env.openExternal(vscode.Uri.parse(release.pageUrl || 'https://github.com/wafiy-stack/open-cursor/releases')); }
 			return;
 		}
 		this.busy = true;
